@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>PKFxxxx&#39;s blog</title>
+  
+  <subtitle>pwn for fun</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://pkfxxxx.github.io/"/>
+  <updated>2020-03-07T11:42:08.212Z</updated>
+  <id>https://pkfxxxx.github.io/</id>
+  
+  <author>
+    <name>pkfxxxx</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CVE-2018-17182 VMA use after free 复现笔记</title>
+    <link href="https://pkfxxxx.github.io/2020/03/07/cve-2018-17182/"/>
+    <id>https://pkfxxxx.github.io/2020/03/07/cve-2018-17182/</id>
+    <published>2020-03-06T16:00:00.000Z</published>
+    <updated>2020-03-07T11:42:08.212Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;CVE-2018-17182-VMA-use-after-free-复现笔记&quot;&gt;&lt;a href=&quot;#CVE-2018-17182-VMA-use-after-free-复现笔记&quot; class=&quot;headerlink&quot; title=&quot;CVE-2018-17182
+        
+      
+    
+    </summary>
+    
+    
+      <category term="linux kernel uaf" scheme="https://pkfxxxx.github.io/tags/linux-kernel-uaf/"/>
+    
+  </entry>
+  
+</feed>
