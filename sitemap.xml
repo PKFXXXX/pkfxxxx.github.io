@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://pkfxxxx.github.io/friends/index.html</loc>
+    
+    <lastmod>2020-03-07T17:03:57.230Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://pkfxxxx.github.io/2020/03/07/cve-2018-17182/</loc>
     
     <lastmod>2020-03-07T11:42:08.212Z</lastmod>
@@ -12,13 +19,6 @@
     <loc>https://pkfxxxx.github.io/about/index.html</loc>
     
     <lastmod>2020-03-07T07:43:22.741Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://pkfxxxx.github.io/friends/index.html</loc>
-    
-    <lastmod>2020-03-07T07:40:58.429Z</lastmod>
     
   </url>
   
