@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://pkfxxxx.github.io/"/>
-  <updated>2020-03-09T16:08:53.183Z</updated>
+  <updated>2020-03-12T13:54:12.131Z</updated>
   <id>https://pkfxxxx.github.io/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CVE-2016-5195 脏牛漏洞复现笔记</title>
+    <link href="https://pkfxxxx.github.io/2020/03/11/cve-2016-5195/"/>
+    <id>https://pkfxxxx.github.io/2020/03/11/cve-2016-5195/</id>
+    <published>2020-03-10T16:00:00.000Z</published>
+    <updated>2020-03-12T13:54:12.131Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&lt;img src=&quot;0.jpg&quot; alt=&quot;dirty cow&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;漏洞描述&quot;&gt;&lt;a href=&quot;#漏洞描述&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="linux kernel race" scheme="https://pkfxxxx.github.io/tags/linux-kernel-race/"/>
+    
+  </entry>
   
   <entry>
     <title>CVE-2018-17182 VMA use after free 复现笔记</title>
