@@ -4,12 +4,11 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="CVE-2016-5195 脏牛漏洞复现笔记, linux pwn ctf">
+    <meta name="keywords" content="安卓内核调试初试, linux pwn ctf">
     <meta name="baidu-site-verification" content="B8mdwXr1Iu">
     <meta name="google-site-verification" content="B8mdwXr1Iu">
     <meta name="360-site-verification" content="B8mdwXr1Iu">
-    <meta name="description" content="
-漏洞描述(CVE-2016-5195)脏牛漏洞是一个影响范围十分广的本地提权漏洞，影响2.6.22 (released in 2007) 以后的所有内核版本，在2016年10月18日被修复。漏洞发现者Phil Oester发现在linux">
+    <meta name="description" content="Adroid Studio下载下载地址: https://developer.android.com/studio如果觉得android studio太大了，可以只下载Command line tools，我这里直接装studio比较省事。">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +16,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>CVE-2016-5195 脏牛漏洞复现笔记 | PKFxxxx&#39;s blog</title>
+    <title>安卓内核调试初试 | PKFxxxx&#39;s blog</title>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -291,13 +290,13 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/image/1.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/image/2.png')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        CVE-2016-5195 脏牛漏洞复现笔记
+                        安卓内核调试初试
                     </div>
                 </div>
             </div>
@@ -408,8 +407,8 @@
                     
                     <div class="article-tag">
                         
-                        <a href="/tags/linux-kernel-race/" target="_blank">
-                            <span class="chip bg-color">linux kernel race</span>
+                        <a href="/tags/android-linux-kernel/" target="_blank">
+                            <span class="chip bg-color">android linux kernel</span>
                         </a>
                         
                     </div>
@@ -423,7 +422,7 @@
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-03-11
+                    2020-03-17
                 </div>
 
                 <div class="post-author info-break-policy">
@@ -437,14 +436,14 @@
                 
                 <div class="info-break-policy">
                     <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    2.2k
+                    1.3k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    8 分
+                    5 分
                 </div>
                 
                 
@@ -460,47 +459,62 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p><img src="0.jpg" alt="dirty cow"></p>
-<h1 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h1><p>(CVE-2016-5195)脏牛漏洞是一个影响范围十分广的本地提权漏洞，影响2.6.22 (released in 2007) 以后的所有内核版本，在2016年10月18日被修复。漏洞发现者Phil Oester发现在linux kernel的内存子系统在处理 copy-on-write (COW) 的时候可以引起条件竞争，从而可以对只读内存页进行修改，比如说对su或者passwd程序进行修改，从而达到提权的目的。</p>
-<h1 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h1><h2 id="Copy-On-Write介绍"><a href="#Copy-On-Write介绍" class="headerlink" title="Copy-On-Write介绍"></a>Copy-On-Write介绍</h2><p>COW技术被主要用在共享虚拟内存和fork系统调用执行的时候。当一个进程执行fork函数刚刚创建一个新的进程的时候，并不会修改任何的内存。因此每次执行fork的时候就创建一块新的内存页并且复制原有进程的code page是一种很浪费的操作，COW指的就是当新创建的进程执行execl之类的函数的时候，需要对code page进行修改的时候，才真正给它分配一块独立的内存。除此之外，COW还运用在另外一种情况，当进程想对一页only read 物理内存页进行写操作时，操作系统会将其拦截下来，然后复制并分配一块新的可写的物理页（如果only read物理内存页的引用计数只有1的话，就直接引用原有的页，不会分配新的），然后内核会修改页表使得原有的page table entry指向这块新的物理页，对原有的物理页的引用计数减一，然后对新的物理页执行写入操作。这样，写入的操作对于其他共享这块only read内存页的进程就是不可见的了。详情参见<a href="https://en.wikipedia.org/wiki/Copy-on-write" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Copy-on-write</a>。</p>
-<h2 id="POC运行-amp-分析"><a href="#POC运行-amp-分析" class="headerlink" title="POC运行&amp;分析"></a>POC运行&amp;分析</h2><p>复现环境：Linux Ubuntu 4.4.0-21-generic<br>poc地址 <a href="https://github.com/dirtycow/dirtycow.github.io/blob/master/dirtyc0w.c" target="_blank" rel="noopener">https://github.com/dirtycow/dirtycow.github.io/blob/master/dirtyc0w.c</a>  </p>
-<p><img src="1.png" alt="run poc1"><br><img src="2.png" alt="run poc2"><br><img src="3.png" alt="run poc3">  </p>
-<p>大概意思就是用root创建了一个只读文件，然后执行poc把只读文件给篡改了。<br>在来看看poc的代码。</p>
-<p><img src="4.png" alt="dirtyc0w.c1"><br>main函数中主要是将foo只读文件用mmap映射到内存中，然后创建了madvice和procselfmem两个线程。<br>　　　　　　<img src="5.png" alt="drityc0w.c2"><br>madvice线程中，一直不断运行带有MADV_DONTNEED标识的madvice函数，这个函数的作用是告诉内核map这块内存不需要了，内核将会回收物理内存页。<br>　　　　　　<img src="6.png" alt="dirtyc0w.c3">　　<br>procselfmem线程中，打开/proc/self/mem文件，然后将读写指针移动到map，然后对其进行写操作，这里说明一下/proc/self/mem文件，这个文件指向的是进程本身的内存，通常调试器改写程序内存就是通过这个文件进行读写，所以这里能够对只读内存页map重复进行写操作而不会触发segmentation。<br>很容易看出来，这两个线程存在条件竞争，当procselfmem对只读内存进行写操作时会触发cow机制，但是madvice会干扰这个cow的过程，使得cow失败，这样就能将已经dirty的page不按照cow的过程写入只读文件。<br>另外一种方法使用ptrace系统调用写文件映射内存的原理和上面其实也差不多。参见<a href="https://github.com/dirtycow/dirtycow.github.io/blob/master/pokemon.c" target="_blank" rel="noopener">https://github.com/dirtycow/dirtycow.github.io/blob/master/pokemon.c</a></p>
-<h2 id="漏洞原理分析"><a href="#漏洞原理分析" class="headerlink" title="漏洞原理分析"></a>漏洞原理分析</h2><ul>
-<li><p>脏牛漏洞出现在get_user_pages函数中，这个函数能够根据虚拟地址得到对应的物理地址。follow_page_mask函数在get_user_pages函数中被调用，他的作用是从页表中获取指定地址的物理页，当页表中没有此物理页时或者对foll_flags所代表的内存访问语义做检查时发现和内存页中的权限配置不一样时，就返回0，否则就返回对应的物理页。当返回0时，就调用faultin_page函数来对错误进行处理。</p>
-</li>
-<li><p>具体的流程已经有大佬分析的很透彻了，参见<br><a href="https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails" target="_blank" rel="noopener">https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails</a><br><a href="https://www.anquanke.com/post/id/84851" target="_blank" rel="noopener">https://www.anquanke.com/post/id/84851</a><br><a href="https://blog.jenisec.org/security/hugedirtycow.html" target="_blank" rel="noopener">https://blog.jenisec.org/security/hugedirtycow.html</a><br>我这里搭建qemu的调试环境来把COW的三次entry循环走一遍(内核版本为4.8.1)。<br><img src="7.png" alt="func call stack">  </p>
-</li>
-<li><p>首先是get_user_pages函数的触发，通过调试得到如上函数调用栈<br><img src="8.png" alt="first follow_page_mask"></p>
-</li>
-<li><p>在__get_user_pages中，因为这是第一次访问map，所以页表中没有相对应的page table entry，所以第一次调用follow_page_mask带有FOLL_WRITE返回0，必须提的是在调用follow_page_mask之前还调用了cond_resched()函数，这个函数会通知内核先优先调用其他线程，所以这就很容易导致竞争。由于follow_page_mask返回0，就是没有找到page，然后就会进入faultin_page函数。<br><img src="9.png" alt="first faultin_page"></p>
-</li>
-<li><p>第一次调用faultin_page,因为带有FOLL_WRITE，在一开始被设置了fault_flags |= FAULT_FLAG_WRITE。然后因为没有相对应的pte，所以在faultin_page中创建了pte和物理内存页并初始化，然后还调用了maybe_mkwrite(pte_mkdirty(entry), vma)标记此页dirty，但是要注意此时此物理内存页仍然是只读的。从上面的调试中可以看到第一次调用faultin_page返回0，于是又重新回到entry。<br><img src="10.png" alt="second follow_page_mask"></p>
-</li>
-<li><p>第二次调用follow_page_mask函数，带有FOLL_WRITE，这一次有相对应的pte了，可是follow_page_pte中有一个if ((flags &amp; FOLL_WRITE) &amp;&amp; !pte_write(pte))判断过不了，所以返回NULL，follow_page_mask也返回NULL。于是导致第二次进入faultin_page函数。<br><img src="11.png" alt="second faultin_page"></p>
-</li>
-<li><p>第二次调用faultin_page函数，仍然带有FOLL_WRITE，在handle_pte_fault函数中，因为在faultin_page函数一开始就设置了FAULT_FLAG_WRITE位，且pte_write函数返回0，这时会进入do_wp_page函数中。do_wp_page函数会判断此内存页是否要复制一份，由于这个物理内存页引用计数只有1，所以不会被复制一份，在do_wp_page函数里面又会调用wp_page_reuse函数，在wp_page_reuse函数中，又会运行maybe_mkwrite(pte_mkdirty(entry), vma)，将pte标记为dirty，但此时此物理页，仍然是只读的。但是wp_page_reuse函数返回值是VM_FAULT_WRITE，所以do_wp_page和handle_pte_fault也返回VM_FAULT_WRITE，最后handle_mm_fault也返回VM_FAULT_WRITE，这样在faultin_page函数后面会有 if ((ret &amp; VM_FAULT_WRITE) &amp;&amp; !(vma-&gt;vm_flags &amp; VM_WRITE))这样的一个判断，最后判断为真，运行*flags &amp;= ~FOLL_WRITE，会将FOLL_WRITE给置为0。第二次faultin_page函数同样也返回0，于是便进入第三次entry。<br><img src="12.png" alt="third follow_page_mask"></p>
-</li>
-<li><p>第三次调用follow_page_mask函数，不带有FOLL_WRITE，而且pte也存在，这样第三次follow_page_mask就能返回一个合法的物理内存页，最后write系统调用成功写入这个物理页。但是由于这是COW机制分配出来的物理页，最后内存页释放的时候，并不会重新写入文件。<br>我们要想成功将这个物理内存页写入文件，就得让操作系统认为这不是一个COW机制下的内存页，方法就是在第三次调用cond_resched的时候，调用madvice通过竞争释放掉这块内存页，但是此时的foll_flags结构里面的FOLL_WRITE已经被置0了，这样在第三次进入follow_page_mask的时候，不带FOLL_WRITE但是没有相对应的pte，返回0。这样会调用第三次不带有FOLL_WRITE也没有pte的faultin_page函数，相比于第一次而言，由于不带有FOLL_WRITE，内核只会检查可读性，不会有FAULT_FLAG_WRITE标记，所以在do_fault函数中会调用do_read_fault。<br><img src="13.png" alt="do_read_fault">  </p>
-</li>
-<li><p>最后在faultin_page函数中返回0，又重新返回entry。<br><img src="14.png" alt="fouth follow_page_mask"></p>
-</li>
-<li><p>第四次调用follow_page_mask函数，不带有FOLL_WRITE且pte存在，这样follow_page_mask会返回一个合法的page，注意这个page不是COW机制下的，而是变成了文件的原始页，因此当这个page被释放的时候，会将其写入文件中。这样我们就成功修改了只读文件。<br><img src="15.png" alt="write syscall ret"></p>
-</li>
-<li><p>由于已经得到了page，write系统调用将成功写入map并返回。<br>至此脏牛漏洞调试结束。</p>
-</li>
-</ul>
-<h1 id="分析patch"><a href="#分析patch" class="headerlink" title="分析patch"></a>分析patch</h1><ul>
-<li><p>patch地址<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=19be0eaffa3ac7d8eb6784ad9bdbc7d67ed8e619" target="_blank" rel="noopener">https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=19be0eaffa3ac7d8eb6784ad9bdbc7d67ed8e619</a><br><img src="16.png" alt="patch"></p>
-</li>
-<li><p>patch中新加入了一个宏标志FOLL_COW，先来看看faultin_page中的改变，当kernel判断是要生成一个COW页的时候，他不会将FOLL_WRITE标记给置零了，而是给flags新添了一个FOLL_COW标记，标识这个页是COW机制产生的。所以即便产生竞争，FOLL_WRITE位还是为1的，又会重新进行一次COW循环。</p>
-</li>
-<li><p>因为标记COW页的方式变了，相应的follow_page_pte中对于判断页是否可写的条件也发生了变化。当FOLL_WRITE标记存在时，说明内核要检查页是否有可写的权限，这时改用can_follow_write_pte取代pte_write进行检查，can_follow_write_pte返回true的条件是要么pte有可写的标志，要么这个页有FOLL_FORCE位同时又有FOLL_COW(说明已经经过一次完整的COW循环)，且pte中有dirty标识。</p>
-</li>
-<li><p>commit 的原文是 FOLL_FORCE can write to even unwritable pte’s, but only<br>after we’ve gone through a COW cycle and they are dirty.</p>
-</li>
-</ul>
+                <h1 id="Adroid-Studio"><a href="#Adroid-Studio" class="headerlink" title="Adroid Studio"></a>Adroid Studio</h1><h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p>下载地址: <a href="https://developer.android.com/studio" target="_blank" rel="noopener">https://developer.android.com/studio</a><br>如果觉得android studio太大了，可以只下载Command line tools，我这里直接装studio比较省事。一般studio里面会内置基于qemu的emulator，我们主要就是需要这个用来模拟安卓设备。</p>
+<h2 id="安装Android-Studio"><a href="#安装Android-Studio" class="headerlink" title="安装Android Studio"></a>安装Android Studio</h2><pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">mkdir</span> android_sdk <span class="token operator">&amp;&amp;</span> <span class="token function">cd</span> android_sdk  
+ <span class="token function">tar</span> -xf android-studio-ide-192.6241897-linux.tar.gz  
+ <span class="token function">cd</span> ./android-studio/bin/  
+ ./studio.sh  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p> 按照引导安装完毕，这里注意要想使用emulator，需要cpu支持VT虚拟化，我的环境是虚拟机，所以直接在vm的cpu设置里面勾选即可。安装完后，在home目录下会新建一个~/Android/Sdk目录，进入这里就能看到里面Sdk安装的Sdk tools，添加一下环境变量，来更方便的使用各种工具。  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">export</span> PATH<span class="token operator">=</span>/path/to/Android/platform-tools:<span class="token variable">$PATH</span>  
+ <span class="token function">export</span> PATH<span class="token operator">=</span>/path/to/Android/emulator:<span class="token variable">$PATH</span>  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p> 再执行命令添加环境变量，这样就能在任意一个目录执行studio.sh打开程序了。  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">export</span> PATH<span class="token operator">=</span>/path/to/android-studio/bin/:<span class="token variable">$PATH</span>  <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="创建avd"><a href="#创建avd" class="headerlink" title="创建avd"></a>创建avd</h2><p> 打开android studio，在Configure选项卡中打开AVD Manager，点击Create，我这里选择的设备是Pixel 2，system image可以选择x86架构，x86_64，arm64，armeabi。看自己情况选择，我这里选择了arm64-v8a, api level为25的image，后面选择finish即可创建一个avd。<br> 查看创建是否成功  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> $ emulator -list-avds  
+ Pixel_2_API_25<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p> 启动虚拟环境  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> emulator -avd Pixel_2_API_25 -no-audio -no-boot-anim -no-window -no-snapshot  <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p> 查看当前虚拟环境的内核版本  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> $ adb shell <span class="token function">uname</span> -a  
+ Linux loca 3.10.0+ <span class="token comment" spellcheck="true">#258 SMP PREEMPT Fri May 19 12:03:16 PDT 2017 aarch64  </span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h1><h2 id="下载goldfish源代码和工具链"><a href="#下载goldfish源代码和工具链" class="headerlink" title="下载goldfish源代码和工具链"></a>下载goldfish源代码和工具链</h2><pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">git</span> clone https://aosp.tuna.tsinghua.edu.cn/kernel/goldfish.git  
+ <span class="token function">git</span> clone https://aosp.tuna.tsinghua.edu.cn/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6  
+ <span class="token function">git</span> clone https://aosp.tuna.tsinghua.edu.cn/platform/prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.7  
+ <span class="token function">git</span> clone https://aosp.tuna.tsinghua.edu.cn/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.8  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p> 上面三个分别是编译arm，x86_64，aarch64架构安卓内核所需的工具链，视自己的需求决定用哪一个。我这里使用aarch64-linux-android-4.8进行编译。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p> Goldfish是一种虚拟的ARM处理器，在android的仿真环境中使用。这里由于之前查看虚拟环境时看到的内核版本为3.10，为了兼容我这里也选择编译3.10内核。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">git</span> branch -a  
+ <span class="token function">git</span> checkout -t remotes/origin/android-goldfish-3.10 -b goldfish3.10<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p> 在执行make前，需要配置好相关的环境变量。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">export</span> ARCH<span class="token operator">=</span>arm64
+ <span class="token function">export</span> PATH<span class="token operator">=</span>/path/to/aarch64-linux-android-4.8/bin/:<span class="token variable">$PATH</span>
+ <span class="token function">export</span> CROSS_COMPILE<span class="token operator">=</span>aarch64-linux-android-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p> 可以在/path/to/goldfish/arch/arm64/configs目录下查看源代码自带的arm64的config文件。我们这里选择ranchu_defconfig。然后在ranchu_defconfig的基础上执行make menuconfig 添加 Compile the kernel with debug info、Enable dynamic printk() support、KGDB的选项。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">make</span> ranchu_defconfig
+ <span class="token function">make</span> menuconfig
+ <span class="token function">make</span> -j4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p> 安卓内核编译速度很快几分钟就搞定了。我们从goldfish根目录下拿到vmlinux用作gdb调试的符号文件，再从/path/to/goldfish/arch/arm64/boot/目录下拿到Image文件来替换虚拟安卓环境的映像。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p> 使用emulator启动安卓虚拟环境。emulator参数的含义参考<a href="https://developer.android.com/studio/run/emulator-commandline" target="_blank" rel="noopener">https://developer.android.com/studio/run/emulator-commandline</a></p>
+<pre class="line-numbers language-bash"><code class="language-bash"> emulator  -show-kernel -kernel ./Image -avd Pixel_2_API_25 -no-audio -no-boot-anim -no-window -no-snapshot -qemu -s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p> 启动之后终端会显示各种内核的调试信息，我们在另外一个终端使用adb shell进入虚拟环境  </p>
+<pre class="line-numbers language-bash"><code class="language-bash"> $ adb shell
+ generic_arm64:/ $ <span class="token function">uname</span> -a
+ Linux loca 3.10.0+ <span class="token comment" spellcheck="true">#1 SMP PREEMPT Mon Mar 16 20:25:26 CST 2020 aarch64</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p> 此时内核版本已经替换成我们编译的Image映像了。</p>
+<h1 id="调试内核"><a href="#调试内核" class="headerlink" title="调试内核"></a>调试内核</h1><h2 id="编译gdb"><a href="#编译gdb" class="headerlink" title="编译gdb"></a>编译gdb</h2><p> 因为前面下载的工具链里面对应版本的gdb版本都太低了，而且有的不支持python，还有的是python2版本的，这样我们调试的时候就不能使用插件来提升效率了(gdb的插件目前支持arm的好像只有gef，而gef需要python3)。所以我们这里自行交叉编译gdb。因为是调试内核所以gdbserver就不需要了。gdb源码下载地址 <a href="https://mirrors.tuna.tsinghua.edu.cn/gnu/gdb/" target="_blank" rel="noopener">https://mirrors.tuna.tsinghua.edu.cn/gnu/gdb/</a>, 我这里选择的版本是7.11.1。解压压缩包后，配置好config，然后即可编译。如果是要调试其他架构的内核的话，只需要把target选项给换成对应的即可。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> ./configure --target<span class="token operator">=</span>aarch64-linux-gnueabi --with-python<span class="token operator">=</span>/usr/bin/python3
+ <span class="token function">make</span> -j4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p> 从/path/to/gdbsource/gdb/目录拿到对应的gdb bin文件，需要注意的是，如果直接从当前目录./gdb这样运行gdb会报错，应该要这样</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> ./gdb -data-directory /usr/share/gdb<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p> 如果觉得麻烦的话，就将当前gdb bin文件所在的目录添加进环境变量。  </p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p> 先启动虚拟环境，随后使用gdb进行调试。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> $ aarch64-linux-android-gdb -q vmlinux
+ GEF <span class="token keyword">for</span> linux ready, <span class="token function">type</span> `gef<span class="token string">' to start, `gef config'</span> to configure
+ 80 commands loaded <span class="token keyword">for</span> GDB 7.11.1 using Python engine 3.5
+ Reading symbols from vmlinux<span class="token punctuation">..</span>.done.
+ gef➤  target remote localhost:1234<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p> <img src="0.png" alt="gdb1"><br> 这样调试环境就初步准备就绪了。</p>
+<p><strong>Reference</strong><br><a href="https://zhuanlan.zhihu.com/p/56718840" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/56718840</a><br><a href="http://pwn4.fun/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/" target="_blank" rel="noopener">http://pwn4.fun/2016/08/19/Android%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/</a><br><a href="https://blog.csdn.net/zhangjg_blog/article/details/84291663" target="_blank" rel="noopener">https://blog.csdn.net/zhangjg_blog/article/details/84291663</a></p>
 
             </div>
             <hr />
@@ -539,7 +553,7 @@
         repo: 'pkfxxxx.github.io',
         owner: 'pkfxxxx',
         admin: "pkfxxxx",
-        id: '2020/03/11/cve-2016-5195/',
+        id: '2020/03/17/an-zhuo-nei-he-diao-shi-chu-shi/',
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
 
@@ -822,9 +836,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2020/03/17/an-zhuo-nei-he-diao-shi-chu-shi/">
                     <div class="card-image">
@@ -841,14 +856,15 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-03-17
-                        </span>
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-03-17
+                            </span>
                         <span class="publish-author">
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -867,23 +883,23 @@
                 下一篇&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2020/03/07/cve-2018-17182/">
+                <a href="/2020/03/11/cve-2016-5195/">
                     <div class="card-image">
                         
-                        <img src="/image/0.jpg" class="responsive-img" alt="CVE-2018-17182 VMA use after free 复现笔记">
+                        <img src="/image/1.jpg" class="responsive-img" alt="CVE-2016-5195 脏牛漏洞复现笔记">
                         
-                        <span class="card-title">CVE-2018-17182 VMA use after free 复现笔记</span>
+                        <span class="card-title">CVE-2016-5195 脏牛漏洞复现笔记</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            寒假中复现的一个cve，主要参考了https://www.anquanke.com/post/id/161632，感谢大佬的文章Orz。
+                            学习了一下大名鼎鼎的脏牛漏洞，顺便熟悉熟悉linux的内存管理。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-03-07
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-03-11
                             </span>
                         <span class="publish-author">
                             
@@ -893,8 +909,8 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/linux-kernel-uaf/" target="_blank">
-                        <span class="chip bg-color">linux kernel uaf</span>
+                    <a href="/tags/linux-kernel-race/" target="_blank">
+                        <span class="chip bg-color">linux kernel race</span>
                     </a>
                     
                 </div>

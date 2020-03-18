@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://pkfxxxx.github.io/"/>
-  <updated>2020-03-12T13:54:12.131Z</updated>
+  <updated>2020-03-18T12:53:14.712Z</updated>
   <id>https://pkfxxxx.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>安卓内核调试初试</title>
+    <link href="https://pkfxxxx.github.io/2020/03/17/an-zhuo-nei-he-diao-shi-chu-shi/"/>
+    <id>https://pkfxxxx.github.io/2020/03/17/an-zhuo-nei-he-diao-shi-chu-shi/</id>
+    <published>2020-03-16T16:00:00.000Z</published>
+    <updated>2020-03-18T12:53:14.712Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;Adroid-Studio&quot;&gt;&lt;a href=&quot;#Adroid-Studio&quot; class=&quot;headerlink&quot; title=&quot;Adroid Studio&quot;&gt;&lt;/a&gt;Adroid Studio&lt;/h1&gt;&lt;h2 id=&quot;下载&quot;&gt;&lt;a href=&quot;#下载&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="android linux kernel" scheme="https://pkfxxxx.github.io/tags/android-linux-kernel/"/>
+    
+  </entry>
   
   <entry>
     <title>CVE-2016-5195 脏牛漏洞复现笔记</title>
