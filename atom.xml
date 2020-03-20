@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://pkfxxxx.github.io/"/>
-  <updated>2020-03-18T12:53:14.712Z</updated>
+  <updated>2020-03-20T08:43:43.258Z</updated>
   <id>https://pkfxxxx.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>记录一道kernel pwn</title>
+    <link href="https://pkfxxxx.github.io/2020/03/19/ji-lu-yi-dao-kernel-pwn/"/>
+    <id>https://pkfxxxx.github.io/2020/03/19/ji-lu-yi-dao-kernel-pwn/</id>
+    <published>2020-03-18T16:00:00.000Z</published>
+    <updated>2020-03-20T08:43:43.258Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;D3CTF-knote复现&quot;&gt;&lt;a href=&quot;#D3CTF-knote复现&quot; class=&quot;headerlink&quot; title=&quot;D3CTF knote复现&quot;&gt;&lt;/a&gt;D3CTF knote复现&lt;/h1&gt;&lt;p&gt; 最近想拿一道kernel
+        
+      
+    
+    </summary>
+    
+    
+      <category term="CTF linux kernel race" scheme="https://pkfxxxx.github.io/tags/CTF-linux-kernel-race/"/>
+    
+  </entry>
   
   <entry>
     <title>安卓内核调试初试</title>
