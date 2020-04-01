@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://pkfxxxx.github.io/"/>
-  <updated>2020-03-24T13:40:42.436Z</updated>
+  <updated>2020-04-01T18:40:19.768Z</updated>
   <id>https://pkfxxxx.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>记录三道kernel pwn</title>
+    <link href="https://pkfxxxx.github.io/2020/04/01/ji-lu-san-dao-kernel-pwn/"/>
+    <id>https://pkfxxxx.github.io/2020/04/01/ji-lu-san-dao-kernel-pwn/</id>
+    <published>2020-03-31T16:00:00.000Z</published>
+    <updated>2020-04-01T18:40:19.768Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h1&gt;&lt;p&gt;这篇笔记主要记载了三道kernel
+        
+      
+    
+    </summary>
+    
+    
+      <category term="CTF linux kernel" scheme="https://pkfxxxx.github.io/tags/CTF-linux-kernel/"/>
+    
+  </entry>
   
   <entry>
     <title>Arm pwn 初试</title>
